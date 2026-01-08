@@ -21,7 +21,8 @@ app.get('/', (req, res) => {
             register: 'POST /api/auth/register',
             login: 'POST /api/auth/login',
             profile: 'GET /api/auth/profile (requer token)',
-            users: 'GET /api/auth/users (requer token)'
+            users: 'GET /api/auth/users (requer token)',
+            test: 'GET /api/test'
         }
     });
 });
