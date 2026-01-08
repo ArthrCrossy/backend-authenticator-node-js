@@ -1,0 +1,32 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-auth
+    environment:
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: SenhaForte@123
+      MYSQL_ROOT_PASSWORD: RootSenhaForte@123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pRootSenhaForte@123"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: .
+    container_name: backend-auth
+    env_file:
+      - .env.docker
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
