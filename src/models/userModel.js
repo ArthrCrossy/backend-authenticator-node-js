@@ -5,18 +5,24 @@ class UserModel {
     static async create(name, email, password) {
         const query = `
             INSERT INTO users (name, email, password)
-            VALUES ($1, $2, $3)
-                RETURNING id, name, email, created_at
+            VALUES (?, ?, ?)
         `;
-        const values = [name, email, password];
-        const result = await pool.query(query, values);
-        return result.rows[0];
+
+        const [result] = await pool.execute(query, [name, email, password]);
+
+        return {
+            id: result.insertId,
+            name,
+            email,
+            created_at: new Date()
+        };
     }
 
+
     static async findByEmail(email) {
-        const query = 'SELECT * FROM users WHERE email = $1';
-        const result = await pool.query(query, [email]);
-        return result.rows[0];
+        const query = 'SELECT * FROM users WHERE email = ? LIMIT 1';
+        const [rows] = await pool.execute(query, [email]);
+        return rows[0];
     }
 
     static async findById(id) {
