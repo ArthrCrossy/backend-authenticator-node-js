@@ -5,7 +5,7 @@ services:
     environment:
       MYSQL_DATABASE: auth_db
       MYSQL_USER: appuser
-      MYSQL_PASSWORD: SenhaForte@123
+#      MYSQL_PASSWORD: SenhaForte@123
       MYSQL_ROOT_PASSWORD: RootSenhaForte@123
     ports:
       - "3307:3306"
