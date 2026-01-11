@@ -33,9 +33,16 @@ class UserModel {
 
     static async findAll() {
         const query = 'SELECT id, name, email, created_at FROM users ORDER BY created_at DESC';
-        const result = await pool.query(query);
-        return result.rows;
+        const [rows] = await pool.query(query);
+        return rows;
     }
+
+    static async findAllNames() {
+        const query = 'SELECT name, created_at FROM users ORDER BY created_at DESC';
+        const [rows] = await pool.query(query);
+        return rows;
+    }
+
 
     static async update(id, name, email) {
         const query = `

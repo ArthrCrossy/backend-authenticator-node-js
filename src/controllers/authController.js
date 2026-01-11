@@ -9,6 +9,8 @@ class AuthController {
         try {
             const { name, email, password } = req.body;
 
+            console.log(req.body.name);
+
             if (!name || !email || !password) {
                 return res.status(400).json({
                     success: false,
@@ -56,6 +58,8 @@ class AuthController {
     static async login(req, res) {
         try {
             const { email, password } = req.body;
+
+            console.log(req.body.email);
 
             // Validação dos campos
             if (!email || !password) {
@@ -136,6 +140,23 @@ class AuthController {
     static async getAllUsers(req, res) {
         try {
             const users = await UserModel.findAll();
+            res.status(200).json({
+                success: true,
+                data: users
+            });
+        } catch (error) {
+            console.error('Erro ao listar usuários:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Erro interno do servidor',
+                error: error.message
+            });
+        }
+    }
+
+    static async getAllNames(req, res) {
+        try {
+            const users = await UserModel.findAllNames();
             res.status(200).json({
                 success: true,
                 data: users

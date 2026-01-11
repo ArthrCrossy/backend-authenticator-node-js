@@ -22,7 +22,9 @@ app.get('/', (req, res) => {
             login: 'POST /api/auth/login',
             profile: 'GET /api/auth/profile (requer token)',
             users: 'GET /api/auth/users (requer token)',
-            test: 'GET /api/test'
+            test: 'GET /api/test',
+            names: 'GET /names'
+
         }
     });
 });
