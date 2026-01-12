@@ -170,6 +170,28 @@ class AuthController {
             });
         }
     }
+
+    static async getEmail(req, res) {
+
+        const email = req.body.email;
+
+        try {
+            const user = await UserModel.findByEmail(email);
+            res.status(200).json({
+                success: true,
+                data: user
+            });
+        } catch (error) {
+            console.error('Erro ao listar usuários:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Erro interno do servidor',
+                error: error.message
+            });
+        }
+
+
+    }
 }
 
 module.exports = AuthController;

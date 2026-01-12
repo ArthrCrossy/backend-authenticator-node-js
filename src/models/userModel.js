@@ -20,9 +20,11 @@ class UserModel {
 
 
     static async findByEmail(email) {
+        if (!email) return null;
+
         const query = 'SELECT * FROM users WHERE email = ? LIMIT 1';
         const [rows] = await pool.execute(query, [email]);
-        return rows[0];
+        return rows[0] ?? null;
     }
 
     static async findById(id) {

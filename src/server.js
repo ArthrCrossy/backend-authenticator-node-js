@@ -23,7 +23,8 @@ app.get('/', (req, res) => {
             profile: 'GET /api/auth/profile (requer token)',
             users: 'GET /api/auth/users (requer token)',
             test: 'GET /api/test',
-            names: 'GET /names'
+            names: 'GET /names',
+            newPassword: ' /api/auth/newPassword'
 
         }
     });
