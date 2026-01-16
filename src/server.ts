@@ -6,6 +6,10 @@ import { createTables } from "./config/database";
 import process = require("process");
 import authRoutes from "./routes/authRoutes";
 
+import userProfileRoutes from "./routes/userProfileRoutes";
+import foodRoutes from "./routes/foodRoutes";
+import foodEntryRoutes from "./routes/foodEntryRoutes";
+
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
 
@@ -14,6 +18,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/profile", userProfileRoutes);
+app.use("/api/foods", foodRoutes);
+app.use("/api/food-entries", foodEntryRoutes);
 
 app.get("/", (_req: Request, res: Response) => {
     res.json({
