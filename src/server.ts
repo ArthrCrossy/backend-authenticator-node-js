@@ -2,9 +2,9 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import "dotenv/config";
 
-import { createUsersTable } from "./config/database";
-import authRoutes from "./routes/authRoutes";
+import { createTables } from "./config/database";
 import process = require("process");
+import authRoutes from "./routes/authRoutes";
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -32,7 +32,7 @@ app.get("/", (_req: Request, res: Response) => {
 
 async function startServer() {
     try {
-        await createUsersTable();
+        await createTables();
 
         app.listen(PORT, () => {
             console.log(`🚀 Servidor rodando na porta ${PORT}`);
