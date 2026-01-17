@@ -91,4 +91,10 @@ export async function createTables() {
         FOREIGN KEY (food_id) REFERENCES foods(id)
     );
   `);
+
+    await run(`
+  ALTER TABLE users
+    ADD role ENUM('admin','user') NOT NULL DEFAULT 'user';
+`);
+
 }
