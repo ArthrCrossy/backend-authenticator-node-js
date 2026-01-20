@@ -92,9 +92,13 @@ export async function createTables() {
     );
   `);
 
-    await run(`
-  ALTER TABLE users
-    ADD role ENUM('admin','user') NOT NULL DEFAULT 'user';
-`);
+    const [roleCols] = await pool.query<any[]>(`SHOW COLUMNS FROM users LIKE 'role'`);
 
+    if (roleCols.length === 0) {
+        await run(`
+    ALTER TABLE users
+      ADD role ENUM('admin','user') NOT NULL DEFAULT 'user';
+  `);
+        console.log("✅ Coluna 'role' criada");
+    }
 }
