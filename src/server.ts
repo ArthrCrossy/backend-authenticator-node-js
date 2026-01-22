@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes";
 import userProfileRoutes from "./routes/userProfileRoutes";
 import foodRoutes from "./routes/foodRoutes";
 import foodEntryRoutes from "./routes/foodEntryRoutes";
+import {broadcastRouter} from "./modules/broadcast/broadcast.routes";
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -35,6 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
 
+app.use("/", broadcastRouter);
 app.use("/api/profile", userProfileRoutes);
 app.use("/api/foods", foodRoutes);
 app.use("/api/food-entries", foodEntryRoutes);

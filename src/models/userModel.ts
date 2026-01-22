@@ -15,6 +15,7 @@ export type PublicUser = {
     name: string;
     email: string;
     created_at: Date;
+    role: String;
 };
 
 export type UserNameRow = RowDataPacket & {
@@ -43,7 +44,7 @@ export default class    userModel {
             id: result.insertId,
             name,
             email,
-            created_at: new Date(),
+            created_at: new Date()
         };
     }
 

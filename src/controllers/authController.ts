@@ -102,7 +102,7 @@ export default class AuthController {
             }
 
             const token = jwt.sign(
-                { id: user.id, email: user.email },
+                { id: user.id, email: user.email, role: user.role },
                 getJwtSecret(),
                 { expiresIn: "7d" }
             );
@@ -112,10 +112,12 @@ export default class AuthController {
                 name: user.name,
                 email: user.email,
                 created_at: user.created_at,
+                role: user.role,
             };
 
             return res.json({
                 success: true,
+                role:user.role,
                 message: "Login realizado com sucesso",
                 user: publicUser,
                 token,
@@ -132,7 +134,7 @@ export default class AuthController {
 
     static async getProfile(req: Request, res: Response) {
         try {
-            const userIdRaw = req.body.id;
+              const userIdRaw = req.body.id;
             const userId = typeof userIdRaw === "string" ? Number(userIdRaw) : userIdRaw;
 
             if (!userId || Number.isNaN(userId)) {

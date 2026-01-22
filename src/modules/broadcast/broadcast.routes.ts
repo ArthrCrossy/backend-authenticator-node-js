@@ -6,6 +6,11 @@ import {
     unreadCount,
 } from "./broadcast.service";
 import { addClient, emitToAll } from "./sseHub";
+import router from "../../routes/authRoutes";
+import authMiddleware from "../../middlewares/authMiddleware";
+import {pool} from "../../config/database";
+import jwt from "jsonwebtoken";
+import {requireAuthMiddleware} from "../../middlewares/requireAuthUser";
 
 
 
@@ -14,14 +19,23 @@ export const broadcastRouter = Router();
 
 type AuthedReq = any;
 
-function requireAuth(req: AuthedReq, res: any, next: any) {
-    if (!req.user?.id) return res.status(401).json({ error: "unauthorized" });
-    next();
-}
 
-function requireAdmin(req: AuthedReq, res: any, next: any) {
-    if (!req.user?.isAdmin) return res.status(403).json({ error: "forbidden" });
-    next();
+function requireAuth(req: AuthedReq, res: any, next: any) {
+    const auth = req.headers.authorization;
+
+    if (!auth?.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "unauthorized" });
+    }
+
+    const token = auth.slice("Bearer ".length);
+
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+        req.user = payload; // 👈 aqui nasce o req.user
+        return next();
+    } catch {
+        return res.status(401).json({ error: "unauthorized" });
+    }
 }
 
 export function requireAdminBroadcast(req: any, res: any, next: any) {
@@ -70,3 +84,34 @@ broadcastRouter.post("/me/broadcast/:id/read", requireAuth, async (req: AuthedRe
 broadcastRouter.get("/me/broadcast/stream", requireAuth, (req: AuthedReq, res) => {
     addClient(req.user.id, res);
 });
+
+router.post(
+    "/broadcast",
+    authMiddleware,
+    requireAdminBroadcast,
+    async (req, res) => {
+        console.log("broadcast")
+        const { title, body } = req.body;
+        const adminId = req.body.id;
+
+        // 1️⃣ cria mensagem
+        const [result]: any = await pool.execute(
+            `
+      INSERT INTO broadcast_messages (title, body, created_by_user_id)
+      VALUES (?, ?, ?)
+      `,
+            [title, body, adminId]
+        );
+
+        const messageId = result.insertId;
+
+        await pool.execute(`
+      INSERT INTO user_broadcast_status (user_id, message_id)
+      SELECT id, ?
+      FROM users
+    `, [messageId]);
+
+        res.json({ success: true });
+    }
+);
+
