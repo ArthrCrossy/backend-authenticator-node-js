@@ -38,22 +38,22 @@ export async function createBroadcast(params: {
 
 export async function listMyBroadcast(userId: number, limit = 20, offset = 0) {
     const [rows] = await pool.execute(
-        `SELECT
-       bm.id,
-       bm.title,
-       bm.body,
-       bm.created_at,
-       ubs.is_read,
-       ubs.read_at
-     FROM user_broadcast_status ubs
-     JOIN broadcast_messages bm ON bm.id = ubs.message_id
-     WHERE ubs.user_id = ?
-     ORDER BY bm.created_at DESC
-     LIMIT ? OFFSET ?`,
-        [userId, limit, offset]
-    );
+                `
+                    SELECT
+                        bm.id,
+                        bm.title,
+                        bm.body,
+                        bm.created_at,
+                        ubs.is_read,
+                        ubs.read_at
+                    FROM user_broadcast_status ubs
+                             JOIN broadcast_messages bm ON bm.id = ubs.message_id
+                    WHERE ubs.user_id = ${userId}
+                    ORDER BY bm.created_at DESC
+                        LIMIT ${limit} OFFSET ${offset}
+`);
+    return rows;
 
-    return rows as any[];
 }
 
 export async function markBroadcastRead(userId: number, messageId: number) {
