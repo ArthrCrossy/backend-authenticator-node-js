@@ -10,6 +10,7 @@ import userProfileRoutes from "./routes/userProfileRoutes";
 import foodRoutes from "./routes/foodRoutes";
 import foodEntryRoutes from "./routes/foodEntryRoutes";
 import {broadcastRouter} from "./modules/broadcast/broadcast.routes";
+import supportRoutes from "./modules/support/support.routes";
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -40,6 +41,7 @@ app.use("/", broadcastRouter);
 app.use("/api/profile", userProfileRoutes);
 app.use("/api/foods", foodRoutes);
 app.use("/api/food-entries", foodEntryRoutes);
+app.use(supportRoutes);
 
 app.get("/", (_req: Request, res: Response) => {
     res.json({

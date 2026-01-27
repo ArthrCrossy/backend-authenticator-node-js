@@ -15,6 +15,7 @@ export default function requireAuthUser(
     next: NextFunction
 ) {
     const raw = req.userId;
+    console.log(raw)
 
     if (raw === undefined || raw === null) {
         return res.status(401).json({ success: false, message: "Não autenticado" });
