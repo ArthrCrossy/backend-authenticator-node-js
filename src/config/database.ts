@@ -92,6 +92,33 @@ export async function createTables() {
     );
   `);
 
+    await run(`
+    CREATE TABLE IF NOT EXISTS user_admin_messages (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        sender_user_id INT NOT NULL,
+        receiver_admin_id INT NULL,
+        title VARCHAR(120),
+        body TEXT NOT NULL,
+
+        is_read TINYINT(1) NOT NULL DEFAULT 0,
+        read_at TIMESTAMP NULL,
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+        INDEX idx_sender (sender_user_id),
+        INDEX idx_receiver (receiver_admin_id),
+        INDEX idx_is_read (is_read),
+
+        CONSTRAINT fk_uam_sender
+        FOREIGN KEY (sender_user_id) REFERENCES users(id)
+        ON DELETE CASCADE,
+
+        CONSTRAINT fk_uam_receiver
+        FOREIGN KEY (receiver_admin_id) REFERENCES users(id)
+        ON DELETE SET NULL
+    );
+  `);
+
     const [roleCols] = await pool.query<any[]>(`SHOW COLUMNS FROM users LIKE 'role'`);
 
     if (roleCols.length === 0) {
