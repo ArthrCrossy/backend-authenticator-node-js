@@ -10,7 +10,7 @@ import router from "../../routes/authRoutes";
 import authMiddleware from "../../middlewares/authMiddleware";
 import {pool} from "../../config/database";
 import jwt from "jsonwebtoken";
-import {requireAuthMiddleware} from "../../middlewares/requireAuthUser";
+import requireAuthUser from "../../middlewares/requireAuthUser";
 
 
 
@@ -31,7 +31,7 @@ function requireAuth(req: AuthedReq, res: any, next: any) {
 
     try {
         const payload = jwt.verify(token, process.env.JWT_SECRET as string) as any;
-        req.user = payload; // 👈 aqui nasce o req.user
+        req.user = payload;
         return next();
     } catch {
         return res.status(401).json({ error: "unauthorized" });
@@ -47,7 +47,7 @@ export function requireAdminBroadcast(req: any, res: any, next: any) {
     return next();
 }
 
-broadcastRouter.post("/admin/broadcast", requireAuthMiddleware, requireAdminBroadcast, async (req: AuthedReq, res) => {
+broadcastRouter.post("/admin/broadcast", requireAuthUser, requireAdminBroadcast, async (req: AuthedReq, res) => {
     const { title, body } = req.body ?? {};
     if (!title || !body) return res.status(400).json({ error: "title and body are required" });
 
@@ -94,7 +94,6 @@ router.post(
         const { title, body } = req.body;
         const adminId = req.body.id;
 
-        // 1️⃣ cria mensagem
         const [result]: any = await pool.execute(
             `
       INSERT INTO broadcast_messages (title, body, created_by_user_id)

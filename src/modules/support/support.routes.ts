@@ -8,23 +8,25 @@ import {
 
 const router = Router();
 
-
 router.post("/api/support/messages", requireAuthUser, async (req, res) => {
-    try {console.log("oi")
-        const auth = (req as any).user;
+    try {
 
-        if (auth?.role !== "user") {
+        const auth = req.body.user;
+
+        if (auth !== "user") {
+
             return res.status(403).json({ error: "Only users can send messages" });
         }
 
-        const { title, body, receiverAdminId } = req.body ?? {};
+            const { senderUserId, receiverAdminId, title, body } = req.body ?? {};
 
         const result = await createSupportMessage({
-            senderUserId: auth.id,
-            receiverAdminId: receiverAdminId ?? null,
+            senderUserId: senderUserId,
+            receiverAdminId: receiverAdminId ?? 1,
             title: title ?? null,
             body: String(body ?? ""),
         });
+        console.log("daee")
 
         return res.status(201).json(result);
     } catch (e: any) {

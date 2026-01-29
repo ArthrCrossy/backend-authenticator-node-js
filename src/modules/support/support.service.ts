@@ -1,7 +1,7 @@
 import {pool} from "../../config/database";
 
 export type CreateSupportMessageInput = {
-    senderUserId: number;
+    senderUserId: string;
     receiverAdminId?: number | null;
     title?: string | null;
     body: string;
@@ -19,8 +19,8 @@ export async function createSupportMessage(input: CreateSupportMessageInput) {
     if (body.length > 5000) throw new Error("Body too long");
 
     const sql = `
-    INSERT INTO user_admin_messages (sender_user_id, receiver_admin_id, title, body)
-    VALUES (?, ?, ?, ?)
+        INSERT INTO user_admin_messages (sender_user_id, receiver_admin_id, title, body)
+        VALUES (?, ?, ?, ?)
   `;
 
     const [result]: any = await pool.execute(sql, [

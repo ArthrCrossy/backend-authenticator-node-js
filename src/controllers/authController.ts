@@ -200,7 +200,6 @@ export default class AuthController {
         }
     }
 
-    // Seu route chama /newPassword -> getEmail
     static async getEmail(req: Request<{}, {}, NewPasswordBody>, res: Response) {
         try {
             const { email, password } = req.body;
@@ -223,7 +222,6 @@ export default class AuthController {
             const salt = await bcrypt.genSalt(10);
             const passwordHash = await bcrypt.hash(password, salt);
 
-            // Atualiza apenas senha (mantendo update geral separado)
             const query = "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
             const { pool } = await import("../config/database");
             await pool.execute(query, [passwordHash, user.id]);
