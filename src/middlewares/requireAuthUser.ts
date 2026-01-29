@@ -9,6 +9,12 @@ declare global {
     }
 }
 
+export type AuthUser = {
+    id: number;
+    email: string;
+    role: "user" | "admin";
+};
+
 export default function requireAuthUser(
     req: Request,
     res: Response,
@@ -17,17 +23,24 @@ export default function requireAuthUser(
     const raw = req.userId;
     console.log(raw)
 
-    if (raw === undefined || raw === null) {
-        return res.status(401).json({ success: false, message: "Não autenticado" });
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Token não enviado" });
     }
 
-    const userId = typeof raw === "string" ? Number(raw) : raw;
-    if (!userId || Number.isNaN(userId)) {
-        return res.status(401).json({ success: false, message: "Token inválido (userId)" });
-    }
+    const token = authHeader.slice("Bearer ".length);
 
-    req.authUserId = userId;
-    return next();
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+
+        (req as any).user = decoded as AuthUser;
+
+        return next();
+    } catch (e: any) {
+        console.log("[AUTH] JWT VERIFICAÇÃO FALHA:", e?.message);
+        return res.status(401).json({ error: "Token inválido" });
+    }
 }
 
 export function requireAuthMiddleware(req: any, res: any, next: any) {
