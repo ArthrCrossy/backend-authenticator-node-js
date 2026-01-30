@@ -77,3 +77,13 @@ export async function unreadCount(userId: number) {
     );
     return (rows as any[])[0]?.cnt ?? 0;
 }
+
+export async function deleteId(broadcastId: number) {
+
+    const [row]: any = await pool.execute(
+        `DELETE FROM broadcast_messages WHERE id = ?`,
+        [broadcastId]
+    );
+    return row.affectedRows as number;
+
+}

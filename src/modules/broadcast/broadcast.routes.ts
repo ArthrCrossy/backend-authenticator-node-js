@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-    createBroadcast,
+    createBroadcast, deleteId,
     listMyBroadcast,
     markBroadcastRead,
     unreadCount,
@@ -67,6 +67,17 @@ broadcastRouter.get("/me/broadcast", requireAuth, async (req: AuthedReq, res) =>
     const items = await listMyBroadcast(req.user.id, limit, offset);
     res.json({ items, limit, offset });
 });
+
+broadcastRouter.delete("/me/broadcast/:id", requireAuth, async (req: AuthedReq, res) => {
+
+    const broadcastId = Number(req.params.id);
+    if (!Number.isFinite(broadcastId)) return res.status(400).json({ error: "invalid id" });
+
+    const broadcastDeleted = await deleteId(broadcastId);
+
+    res.json(broadcastDeleted)
+
+})
 
 broadcastRouter.get("/me/broadcast/unread-count", requireAuth, async (req: AuthedReq, res) => {
     const count = await unreadCount(req.user.id);
