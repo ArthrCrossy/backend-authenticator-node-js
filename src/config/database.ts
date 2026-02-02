@@ -128,4 +128,53 @@ export async function createTables() {
   `);
         console.log("✅ Coluna 'role' criada");
     }
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS broadcast_messages (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(200) NULL,
+        body TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS user_broadcast_status (
+        user_id INT NOT NULL,
+        message_id BIGINT NOT NULL,
+        is_read TINYINT(1) NOT NULL DEFAULT 0,
+        read_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (user_id, message_id),
+        INDEX idx_ubs_message (message_id),
+        CONSTRAINT fk_ubs_user
+          FOREIGN KEY (user_id) REFERENCES users(id)
+          ON DELETE CASCADE,
+        CONSTRAINT fk_ubs_message
+          FOREIGN KEY (message_id) REFERENCES broadcast_messages(id)
+          ON DELETE CASCADE
+      );
+    `);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS broadcast_replies (
+        id BIGINT NOT NULL AUTO_INCREMENT,
+        message_id BIGINT NOT NULL,
+        eplied_by_user_id INT NOT NULL,
+        body TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
+        created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        KEY idx_reply_message_id (message_id),
+        KEY idx_reply_user_id (replied_by_user_id),
+        CONSTRAINT fk_reply_message
+        FOREIGN KEY (message_id)
+        REFERENCES broadcast_messages(id)
+        ON DELETE CASCADE,
+        CONSTRAINT fk_reply_user
+        FOREIGN KEY (replied_by_user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+      );
+    `);
+
 }
