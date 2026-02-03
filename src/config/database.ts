@@ -177,4 +177,31 @@ export async function createTables() {
       );
     `);
 
+    await run(`
+  CREATE TABLE IF NOT EXISTS broadcast_likes (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    message_id BIGINT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    UNIQUE KEY uniq_like_message_user (message_id, user_id),
+
+    KEY idx_like_message_id (message_id),
+    KEY idx_like_user_id (user_id),
+    KEY idx_like_message_created (message_id, created_at),
+
+    CONSTRAINT fk_like_message
+      FOREIGN KEY (message_id)
+      REFERENCES broadcast_messages(id)
+      ON DELETE CASCADE,
+
+    CONSTRAINT fk_like_user
+      FOREIGN KEY (user_id)
+      REFERENCES users(id)
+      ON DELETE CASCADE
+  );
+`);
+
 }
