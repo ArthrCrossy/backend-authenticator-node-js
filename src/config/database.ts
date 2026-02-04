@@ -160,7 +160,7 @@ export async function createTables() {
       CREATE TABLE IF NOT EXISTS broadcast_replies (
         id BIGINT NOT NULL AUTO_INCREMENT,
         message_id BIGINT NOT NULL,
-        eplied_by_user_id INT NOT NULL,
+        replied_by_user_id INT NOT NULL,
         body TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
         created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (id),

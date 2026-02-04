@@ -12,6 +12,7 @@ import foodEntryRoutes from "./routes/foodEntryRoutes";
 import {broadcastRouter} from "./modules/broadcast/broadcast.routes";
 import supportRoutes from "./modules/support/support.routes";
 import broadcastRoutes from "./routes/broadcastRoutes";
+import broadcastLikesRoutes from "./routes/broadcastLikesRoutes";
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -31,7 +32,7 @@ app.use((req, res, next) => {
     next();
 });
 
-
+app.use("/api", broadcastLikesRoutes);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
