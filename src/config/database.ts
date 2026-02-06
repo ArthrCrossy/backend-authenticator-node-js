@@ -19,9 +19,10 @@ export async function run(sql: string, params: any[] = []) {
 export async function createTables() {
     await run(`
         CREATE TABLE IF NOT EXISTS users (
-                                             id INT AUTO_INCREMENT PRIMARY KEY,
-                                             name VARCHAR(100) NOT NULL,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
             email VARCHAR(100) NOT NULL UNIQUE,
+            phone VARCHAR(30) NOT NULL,
             password_hash VARCHAR(255) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -203,5 +204,207 @@ export async function createTables() {
       ON DELETE CASCADE
   );
 `);
+
+    await run(`
+  CREATE TABLE IF NOT EXISTS nutrition_assessments (
+      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      created_by_admin_id INT NULL,
+      source ENUM('user','admin') NOT NULL DEFAULT 'user',
+      notes TEXT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+      INDEX idx_assess_user_created (user_id, created_at),
+
+      CONSTRAINT fk_assess_user
+      FOREIGN KEY (user_id) REFERENCES users(id)
+                                                              ON DELETE CASCADE,
+
+      CONSTRAINT fk_assess_admin
+      FOREIGN KEY (created_by_admin_id) REFERENCES users(id)
+                                                              ON DELETE SET NULL
+  );
+`);
+
+    await run(`
+  CREATE TABLE IF NOT EXISTS assessment_personal (
+      assessment_id BIGINT PRIMARY KEY,
+      full_name VARCHAR(120) NULL,
+      email VARCHAR(120) NULL,
+      phone VARCHAR(30) NULL,
+
+      sex ENUM('male','female') NULL,
+      birthdate DATE NULL,
+
+      height_cm INT NULL,
+      weight_kg DECIMAL(5,2) NULL,
+
+      CONSTRAINT fk_ap_assessment
+      FOREIGN KEY (assessment_id) REFERENCES nutrition_assessments(id)
+      ON DELETE CASCADE
+  );
+`);
+
+    await run(`
+  CREATE TABLE IF NOT EXISTS assessment_measurements (
+      assessment_id BIGINT PRIMARY KEY,
+
+       waist_cm INT NULL,
+       hip_cm INT NULL,
+       arm_cm INT NULL,
+       thigh_cm INT NULL,
+       calf_cm INT NULL,
+       neck_cm INT NULL,
+
+        CONSTRAINT fk_am_assessment
+        FOREIGN KEY (assessment_id) REFERENCES nutrition_assessments(id)
+      ON DELETE CASCADE
+  );
+`);
+
+    await run(`
+  CREATE TABLE IF NOT EXISTS assessment_goals (
+       assessment_id BIGINT PRIMARY KEY,
+    
+      primary_goal ENUM('lose_fat','gain_muscle','maintain_health','recomp','performance') NOT NULL,
+      target_weight_kg DECIMAL(5,2) NULL,
+
+      deadline_weeks INT NULL,
+      deadline_date DATE NULL,
+
+      CONSTRAINT fk_ag_assessment
+      FOREIGN KEY (assessment_id) REFERENCES nutrition_assessments(id)
+      ON DELETE CASCADE
+  );
+`);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS assessment_activity (
+          assessment_id BIGINT PRIMARY KEY,
+
+          activity_level ENUM('sedentary','light','moderate','active','very_active','athlete') NOT NULL,
+          currently_training ENUM('yes','no','stopped_recently') NOT NULL,
+          training_frequency_per_week TINYINT NULL,
+          notes TEXT NULL,
+
+          CONSTRAINT fk_aa_assessment
+          FOREIGN KEY (assessment_id) REFERENCES nutrition_assessments(id)
+          ON DELETE CASCADE
+  );
+`);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS training_types (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        code VARCHAR(40) NOT NULL UNIQUE,
+        label VARCHAR(60) NOT NULL
+  );
+`);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS assessment_activity_types (
+          assessment_id BIGINT NOT NULL,
+          training_type_id INT NOT NULL,
+
+          PRIMARY KEY (assessment_id, training_type_id),
+
+          INDEX idx_aat_type (training_type_id),
+
+          CONSTRAINT fk_aat_assessment
+          FOREIGN KEY (assessment_id) REFERENCES nutrition_assessments(id)
+          ON DELETE CASCADE,
+
+          CONSTRAINT fk_aat_type
+          FOREIGN KEY (training_type_id) REFERENCES training_types(id)
+          ON DELETE RESTRICT
+  );
+`);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS dietary_restrictions (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          code VARCHAR(40) NOT NULL UNIQUE,
+          label VARCHAR(60) NOT NULL
+  );
+`);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS assessment_restrictions (
+          assessment_id BIGINT NOT NULL,
+          restriction_id INT NOT NULL,
+
+          PRIMARY KEY (assessment_id, restriction_id),
+
+          INDEX idx_ar_restriction (restriction_id),
+
+          CONSTRAINT fk_ar_assessment
+          FOREIGN KEY (assessment_id) REFERENCES nutrition_assessments(id)
+          ON DELETE CASCADE,
+
+          CONSTRAINT fk_ar_restriction
+          FOREIGN KEY (restriction_id) REFERENCES dietary_restrictions(id)
+          ON DELETE RESTRICT
+  );
+`);
+
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS assessment_nutrition (
+          ssessment_id BIGINT PRIMARY KEY,
+
+          allergies_text TEXT NULL,
+          intolerances_text TEXT NULL,
+          preferences_aversions_text TEXT NULL,
+
+          meals_per_day TINYINT NULL,
+          water_intake_liters DECIMAL(3,1) NULL,
+          alcohol_intake ENUM('none','rare','weekends','weekly','daily') NULL,
+          past_diets_text TEXT NULL,
+
+          CONSTRAINT fk_an_assessment
+          FOREIGN KEY (assessment_id) REFERENCES nutrition_assessments(id)
+          ON DELETE CASCADE
+  );
+`);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS assessment_health (
+          assessment_id BIGINT PRIMARY KEY,
+
+          conditions_text TEXT NULL,
+          medications_text TEXT NULL,
+          surgeries_text TEXT NULL,
+          supplements_text TEXT NULL,
+
+          CONSTRAINT fk_ah_assessment
+          FOREIGN KEY (assessment_id) REFERENCES nutrition_assessments(id)
+          ON DELETE CASCADE
+  );
+`);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS assessment_routine (
+         assessment_id BIGINT PRIMARY KEY,
+
+         wake_time TIME NULL,
+         sleep_time TIME NULL,
+         sleep_hours DECIMAL(3,1) NULL,
+
+          occupation VARCHAR(120) NULL,
+          work_schedule_text VARCHAR(255) NULL,
+
+          stress_level ENUM('low','moderate','high','very_high') NULL,
+          additional_notes TEXT NULL,
+
+          CONSTRAINT fk_arou_assessment
+          FOREIGN KEY (assessment_id) REFERENCES nutrition_assessments(id)
+          ON DELETE CASCADE
+  );
+`);
+
+
+
+
 
 }
